@@ -65,6 +65,7 @@ chmod +x ~/.local/bin/batcolor
 
 - optionally, set `COLOR_NAMES_JSON` environment variable
 
+
   > [!TIP]
   > - the `css-color-names.json` will download automatically on first run
 

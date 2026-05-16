@@ -1,0 +1,54 @@
+# yamllint disable rule:indentation
+---
+ci:
+  autofix_prs: false
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+        name: End Of File Fixer
+      - id: check-yaml
+        name: Check YAML
+        args: ["--unsafe"]
+      - id: check-json
+        name: Check JSON
+      - id: check-merge-conflict
+        name: Check Merge Conflict
+      - id: check-case-conflict
+        name: Check Case Conflict
+      - id: mixed-line-ending
+        name: Mixed Line Ending
+        args: ["--fix=lf"]
+
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.6
+    hooks:
+      - id: forbid-crlf
+        name: Forbid CRLF Line Endings
+      - id: remove-tabs
+        name: Remove Tabs (2 spaces)
+        args: [--whitespaces-count, '2']
+        files: '\.(bash|sh|groovy|yaml|yml|js|json|ini|cfg|txt|md)$'
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.46.2
+    hooks:
+      - id: typos
+        name: Typos
+        args: ['--write-changes', '--force-exclude']
+
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: ShellCheck (bundled)
+        language: python
+        additional_dependencies: [shellcheck-py]
+        entry: shellcheck
+        types: [shell]
+        args: ["--severity=warning"]
+        files: '(\.sh|^batcolor)$'
