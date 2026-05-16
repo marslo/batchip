@@ -1,0 +1,18 @@
+
+@media (prefers-color-scheme: dark) {
+    .note {
+        --bg-color: rgba(9, 105, 218, 0.15);
+        --fg-color: hsla(266, 70%, 53%, 0.6);
+        --title-color: #58a6ff;
+        --link-color: #58a6ff;
+        --link-hover-color: #3870b3;
+    }
+}
+/* blue */
+.note {
+    --bg-color: #f0f6ff;
+    --title-color: #0969da;
+    --border-color: #0969da;
+    --link-color: #0969da; /* Blue */
+    --link-hover-color: #004088;
+}
