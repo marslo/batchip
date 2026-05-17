@@ -15,12 +15,30 @@ Unlike simple text-matching scripts, `batcolor` is built with a sophisticated re
 
 ---
 
+# Table of Contents
+
+- [batcolor](#batcolor)
+  - [demo](#demo)
+  - [Features](#features)
+  - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Setup](#setup)
+  - [Usage](#usage)
+    - [run as command](#run-as-command)
+    - [run as a filter (pipe)](#run-as-a-filter-pipe)
+    - [alias to bat](#alias-to-bat)
+    - [fzf-preview](#fzf-preview)
+- [How it Works (The Math)](#how-it-works-the-math)
+- [License](#license)
+
+---
+
 ## demo
 
 > [!TIP]
 > - check [`fzf-preview.sh`](https://github.com/marslo/dotfiles/raw/main/.marslo/bin/fzf-preview.sh) for full support
 
-<video src="https://github.com/user-attachments/assets/268202bc-e600-464f-8f4c-0e674f9e444d" width="100%" autoplay loop muted playsinline>batcolor integrate with fzf-preview</video>
+<video src="https://github.com/user-attachments/assets/268202bc-e600-464f-8f4c-0e674f9e444d" width="90%" autoplay loop muted playsinline>batcolor integrate with fzf-preview</video>
 
 ![batcolor](./screenshots/batcolor.png)
 
@@ -90,7 +108,7 @@ batcolor -l javascript index.js
 ### run as a filter (pipe)
 
 > [!TIP]
-> - to preserves syntax highlighting with bat in piped mode, make sure to include `--color=always`
+> to preserves syntax highlighting with bat in piped mode, make sure to include `--color=always`
 > - without `--color=always`:
 >   ```bash
 >   $ command bat style.css | command cat -A
@@ -110,9 +128,9 @@ cat palette.json | batcolor -l json
 bat --color=always style.css | batcolor
 ```
 
-![run with bat pipe](./screenshots/batcolor-pip.png)
-
-![run with cat pipe](./screenshots/batcolor-pipe-cat.png)
+|                    run with `bat`                    |                       run with `cat`                      |
+|:----------------------------------------------------:|:---------------------------------------------------------:|
+| ![run with bat pipe](./screenshots/batcolor-pip.png) | ![run with cat pipe](./screenshots/batcolor-pipe-cat.png) |
 
 ### alias to bat
 ```bash
@@ -141,6 +159,7 @@ fi
 
 > [!TIP]
 > Why not just use standard ANSI colors?
+>
 > Standard terminal ANSI bright white (index `97`) or black (index `30`) are often "softened" by terminal color schemes (e.g., turned into off-white or dark gray). When placing text over a vividly colored background, this causes muddy contrast and subpixel anti-aliasing artifacts
 
 batcolor solves this by:
@@ -148,5 +167,5 @@ batcolor solves this by:
 - **Luma Calculation**: Utilizing the `Rec. 709` algorithm (`0.2126 * R + 0.7152 * G + 0.0722 * B`) to simulate human eye sensitivity to green light, ensuring text flips to black exactly when the background becomes subjectively "bright"
 - **Absolute RGB**: Outputting strict `\033[38;2;255;255;255m` and `\033[38;2;0;0;0m` to force the terminal to render pure contrasting text
 
-## License
+# License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
