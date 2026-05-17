@@ -54,43 +54,65 @@ curl -fsSl -O ~/.local/bin/batcolor https://github.com/marslo/batcolor/raw/main/
 chmod +x ~/.local/bin/batcolor
 ```
 
-- setup bash completion
+#### setup bash completion
 
-  ```bash
-  # put into ~/.bashrc or ~/.bash_profile
-  type -P batcolor >/dev/null && complete -o default -o bashdefault -F _bat batcolor
-  ```
+```bash
+# put into ~/.bashrc or ~/.bash_profile
+type -P batcolor >/dev/null && complete -o default -o bashdefault -F _bat batcolor
+```
 
-  ![batcolor bash completion](./screenshots/batcolor-bash-completion.png)
+![batcolor bash completion](./screenshots/batcolor-bash-completion.png)
 
-- optionally, set `COLOR_NAMES_JSON` environment variable
+#### optionally, set `COLOR_NAMES_JSON` environment variable
 
+> [!NOTE]
+> - the `css-color-names.json` will download automatically on first run
 
-  > [!TIP]
-  > - the `css-color-names.json` will download automatically on first run
-
-  ```bash
-  # manual download show color names
-  curl -fsSL -o "${COLOR_NAMES_JSON:-$HOME/.config/css-color-names.json}" \
-       https://github.com/bahamas10/css-color-names/raw/master/css-color-names.json
-  ```
+```bash
+# manual download show color names
+curl -fsSL -o "${COLOR_NAMES_JSON:-$HOME/.config/css-color-names.json}" \
+     https://github.com/bahamas10/css-color-names/raw/master/css-color-names.json
+```
 
 ## Usage
 
+### run as command
 ```bash
 # preview a css file with inline colors
 batcolor styles.css
 
 # use bat arguments (e.g., specific language and line numbers)
 batcolor -l javascript index.js
-
-# pipe output into batcolor
-cat palette.json | batcolor -l json
 ```
 
-![run with pipe](./screenshots/batcolor-pip.png)
-
 ![css](./screenshots/css.png)
+
+### run as a filter (pipe)
+
+> [!TIP]
+> - to preserves syntax highlighting with bat in piped mode, make sure to include `--color=always`
+> - without `--color=always`:
+>   ```bash
+>   $ command bat style.css | command cat -A
+>   .note { --bg-color: rgba(9, 105, 218, 0.15) }$
+>   ```
+> - with `--color=always`:
+>   ```bash
+>   $ command bat --color always style.css | command cat -A
+>   ^[[38;2;146;131;116m   1^[[0m ^[[38;2;184;187;38m.^[[0m^[[38;2;250;189;47mnote^[[0m^[[38;2;251;241;199m ^[[0m^[[38;2;131;165;152m{^[[0m^[[38;2;251;241;199m ^[[0m^[[3;38;2;69;133;136m--^[[0m^[[3;38;2;131;165;152mbg-color^[[0m^[[38;2;131;165;152m:^[[0m^[[38;2;251;241;199m ^[[0m^[[38;2;142;192;124mrgba^[[0m^[[38;2;189;174;147m(^[[0m^[[3;38;2;211;134;155m9^[[0m^[[38;2;131;165;152m,^[[0m^[[38;2;251;241;199m ^[[0m^[[3;38;2;211;134;155m105^[[0m^[[38;2;131;165;152m,^[[0m^[[38;2;251;241;199m ^[[0m^[[3;38;2;211;134;155m218^[[0m^[[38;2;131;165;152m,^[[0m^[[38;2;251;241;199m ^[[0m^[[3;38;2;211;134;155m0^[[0m^[[3;38;2;131;165;152m.^[[0m^[[3;38;2;211;134;155m15^[[0m^[[38;2;189;174;147m)^[[0m^[[38;2;251;241;199m ^[[0m^[[38;2;131;165;152m}^[[0m$
+>   ```
+
+```bash
+# pipe output into batcolor
+cat palette.json | batcolor -l json
+
+# using bat --color=always to preserve syntax highlighting in piped mode
+bat --color=always style.css | batcolor
+```
+
+![run with bat pipe](./screenshots/batcolor-pip.png)
+
+![run with cat pipe](./screenshots/batcolor-pipe-cat.png)
 
 ### alias to bat
 ```bash
@@ -115,10 +137,11 @@ fi
 "${_BAT_CMD[@]}" -- {}
 ```
 
-# How it Works (The Math)lala scre
-# Why not just use standard ANSI colors?
+# How it Works (The Math)
 
-Standard terminal ANSI bright white (index `97`) or black (index `30`) are often "softened" by terminal color schemes (e.g., turned into off-white or dark gray). When placing text over a vividly colored background, this causes muddy contrast and subpixel anti-aliasing artifacts
+> [!TIP]
+> Why not just use standard ANSI colors?
+> Standard terminal ANSI bright white (index `97`) or black (index `30`) are often "softened" by terminal color schemes (e.g., turned into off-white or dark gray). When placing text over a vividly colored background, this causes muddy contrast and subpixel anti-aliasing artifacts
 
 batcolor solves this by:
 
