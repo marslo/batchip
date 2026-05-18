@@ -1,4 +1,4 @@
-# batcolor
+# batchip
 
 A powerful wrapper for bat that instantly renders CSS color codes (Hex, RGB, HSL, Named Colors) in your terminal using TrueColor, featuring smart contrast (Rec. 709 Luma) and alpha blending
 
@@ -9,42 +9,44 @@ A powerful wrapper for bat that instantly renders CSS color codes (Hex, RGB, HSL
 ![TrueColor](https://img.shields.io/badge/Support-24--bit%20TrueColor-blue)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-`batcolor` is a wrapper around the popular [`bat`](https://github.com/sharkdp/bat) command-line tool. It intercepts the output and **colorizes hex codes, rgb/hsl values, and named CSS colors** directly in your terminal, bringing `vim-hexokinase` or modern IDE color preview capabilities to your CLI.
+`batchip` is a [`bat`](https://github.com/sharkdp/bat) wrapper that renders color swatches — inline, in your terminal.
 
-Unlike simple text-matching scripts, `batcolor` is built with a sophisticated rendering engine that respects human visual perception and terminal limitations.
+Hex codes, RGB/HSL values, and named CSS colors are highlighted in their actual color, bringing the color preview to your CLI.
 
 ---
 
 # Table of Contents
 
-- [batcolor](#batcolor)
-  - [demo](#demo)
-  - [Features](#features)
-  - [Installation](#installation)
-    - [Prerequisites](#prerequisites)
-    - [Setup](#setup)
-  - [Usage](#usage)
-    - [run as command](#run-as-command)
-    - [run as a filter (pipe)](#run-as-a-filter-pipe)
-    - [alias to bat](#alias-to-bat)
-    - [fzf-preview](#fzf-preview)
-- [How it Works (The Math)](#how-it-works-the-math)
+- [Demo](#demo)
+- [Features](#features)
+- [Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [Setup](#setup)
+    - [setup bash completion](#setup-bash-completion)
+- [Usage](#usage)
+  - [run as command](#run-as-command)
+  - [run as a filter (pipe)](#run-as-a-filter-pipe)
+  - [alias to bat](#alias-to-bat)
+  - [fzf-preview](#fzf-preview)
+- [others](#others)
+  - [How it Works (The Math)](#how-it-works-the-math)
+  - [related discussion](#related-discussion)
 - [License](#license)
 
 ---
 
-## demo
+# Demo
 
 > [!TIP]
 > - check [`fzf-preview.sh`](https://github.com/marslo/dotfiles/raw/main/.marslo/bin/fzf-preview.sh) for full support
 
-<video src="https://github.com/user-attachments/assets/268202bc-e600-464f-8f4c-0e674f9e444d" width="90%" autoplay loop muted playsinline>batcolor integrate with fzf-preview</video>
-
-![batcolor](./screenshots/batcolor.png)
+|                                                                          VIDEO ( integrate in fzf-preview )                                                                         |               SCREENSHOT              |
+|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------:|
+| <video src="https://github.com/user-attachments/assets/268202bc-e600-464f-8f4c-0e674f9e444d" width="90%" autoplay loop muted playsinline>batchip integrate with fzf-preview</video> | ![batchip](./screenshots/batchip.png) |
 
 ---
 
-## Features
+# Features
 
 - **Broad Format Support**: Parses and colorizes almost all standard color formats:
   - *Hex**: 3, 4, 6, and 8-bit hex codes (e.g., `#fff`, `#AAbB11aa`, `"A0CC2F"`).
@@ -57,33 +59,26 @@ Unlike simple text-matching scripts, `batcolor` is built with a sophisticated re
   - **TrueColor Isolation**: Uses 24-bit TrueColor (`\033[38;2;...`) for both background and foreground, completely bypassing terminal ANSI palette overrides (like those in Gruvbox, Dracula, etc.) to ensure 100% color accuracy.
   - **Seamless `bat` Integration**: Forwards all arguments (like `--paging`, `-l`) directly to `bat`. It preserves your existing syntax highlighting and layout.
 
-## Installation
+# Installation
 
-### Prerequisites
+## Prerequisites
 Make sure you have the following installed on your system:
 - [x] `bat`
 - [x] `perl` (with `JSON::PP` module, usually pre-installed)
 - [x] `curl` (for initial color-names JSON download)
 
-### Setup
+## Setup
 
 ```bash
-curl -fsSl -O ~/.local/bin/batcolor https://github.com/marslo/batcolor/raw/main/batcolor
-chmod +x ~/.local/bin/batcolor
+curl -fsSl -O ~/.local/bin/batchip https://github.com/marslo/batchip/raw/main/batchip
+chmod +x ~/.local/bin/batchip
 ```
-
-#### setup bash completion
-
-```bash
-# put into ~/.bashrc or ~/.bash_profile
-type -P batcolor >/dev/null && complete -o default -o bashdefault -F _bat batcolor
-```
-
-![batcolor bash completion](./screenshots/batcolor-bash-completion.png)
-
-#### optionally, set `COLOR_NAMES_JSON` environment variable
 
 > [!NOTE]
+> - set `COLOR_NAMES_JSON` environment variable:
+>   ```bash
+>   export COLOR_NAMES_JSON="/path/to/css-color-names.json"
+>   ```
 > - the `css-color-names.json` will download automatically on first run
 
 ```bash
@@ -92,20 +87,29 @@ curl -fsSL -o "${COLOR_NAMES_JSON:-$HOME/.config/css-color-names.json}" \
      https://github.com/bahamas10/css-color-names/raw/master/css-color-names.json
 ```
 
-## Usage
+### setup bash completion
 
-### run as command
+```bash
+# put into ~/.bashrc or ~/.bash_profile
+type -P batchip >/dev/null && complete -o default -o bashdefault -F _bat batchip
+```
+
+![batchip bash completion](./screenshots/batchip-bash-completion.png)
+
+# Usage
+
+## run as command
 ```bash
 # preview a css file with inline colors
-batcolor styles.css
+batchip styles.css
 
 # use bat arguments (e.g., specific language and line numbers)
-batcolor -l javascript index.js
+batchip -l javascript index.js
 ```
 
 ![css](./screenshots/css.png)
 
-### run as a filter (pipe)
+## run as a filter (pipe)
 
 > [!TIP]
 > to preserves syntax highlighting with bat in piped mode, make sure to include `--color=always`
@@ -121,51 +125,69 @@ batcolor -l javascript index.js
 >   ```
 
 ```bash
-# pipe output into batcolor
-cat palette.json | batcolor -l json
+# pipe output into batchip
+cat palette.json | batchip -l json
 
 # using bat --color=always to preserve syntax highlighting in piped mode
-bat --color=always style.css | batcolor
+bat --color=always style.css | batchip
 ```
 
-|                    run with `bat`                    |                       run with `cat`                      |
-|:----------------------------------------------------:|:---------------------------------------------------------:|
-| ![run with bat pipe](./screenshots/batcolor-pip.png) | ![run with cat pipe](./screenshots/batcolor-pipe-cat.png) |
+|                    run with `bat`                   |                      run with `cat`                      |
+|:---------------------------------------------------:|:--------------------------------------------------------:|
+| ![run with bat pipe](./screenshots/batchip-pip.png) | ![run with cat pipe](./screenshots/batchip-cat-pipe.png) |
 
-### alias to bat
+## alias to bat
 ```bash
-alias bat='batcolor'
+alias bat='batchip'
 
 # or
-alias bat='/path/to/batcolor'
+alias bat='/path/to/batchip'
 ```
 
 ![alias](./screenshots/json.png)
 
-### fzf-preview
+## fzf-preview
 
 ```bash
-declare _BAT_CMD=$(type -P batcolor || type -P batcat || type -P bat)
-# define bat options base on your preferences
-if [[ -n "${_BAT_CMD}" ]]; then
+# find bat: batchip > batcat > bat
+declare -a _BAT_CMD=( $(type -P batchip || type -P batcat || type -P bat) )
+# bat options
+if [[ "${#_BAT_CMD[@]}" -eq 1 ]]; then
   _BAT_CMD+=( --style="${BAT_STYLE:-numbers}" --theme='Nord' --color=always --pager=never --line-range :500 )
+else
+  # fallback to cat
+  _BAT_CMD=( type -P cat )
 fi
 
-# and view file with
-"${_BAT_CMD[@]}" -- {}
+# integration in fzf
+fzf --preview "${_BAT_CMD[*]} -- {}"
+# or
+fzf --preview "$(printf '%q ' "${_BAT_CMD[@]}") -- {}"
+# or (bash > 4.4+)
+fzf --preview "${_BAT_CMD[*]@Q} -- {}"
 ```
 
-# How it Works (The Math)
+# others
+
+## How it Works (The Math)
 
 > [!TIP]
-> Why not just use standard ANSI colors?
+> - Why not just use standard ANSI colors?
+>> Standard terminal ANSI bright white (index `97`) or black (index `30`) are often "softened" by terminal color schemes.
+>> When placing text over a vividly colored background, this causes muddy contrast and subpixel anti-aliasing artifacts
 >
-> Standard terminal ANSI bright white (index `97`) or black (index `30`) are often "softened" by terminal color schemes (e.g., turned into off-white or dark gray). When placing text over a vividly colored background, this causes muddy contrast and subpixel anti-aliasing artifacts
+> - [Rec. 601](https://en.wikipedia.org/wiki/Rec._601)
+>> `0.299 * R + 0.587 * G + 0.114 * B`
 
-batcolor solves this by:
+batchip solves this by:
 
-- **Luma Calculation**: Utilizing the `Rec. 709` algorithm (`0.2126 * R + 0.7152 * G + 0.0722 * B`) to simulate human eye sensitivity to green light, ensuring text flips to black exactly when the background becomes subjectively "bright"
+- [**Luma Calculation**](https://en.wikipedia.org/wiki/Luma_(video)): Utilizing the [`Rec. 709`](https://en.wikipedia.org/wiki/Rec._709) algorithm (`0.2126 * R + 0.7152 * G + 0.0722 * B`) to simulate human eye sensitivity to green light, ensuring text flips to black exactly when the background becomes subjectively "bright"
 - **Absolute RGB**: Outputting strict `\033[38;2;255;255;255m` and `\033[38;2;0;0;0m` to force the terminal to render pure contrasting text
+
+## related discussion
+
+- [issues/2808](https://github.com/sharkdp/bat/issues/2808)
+- [issues/2705](https://github.com/sharkdp/bat/issues/2705)
 
 # License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

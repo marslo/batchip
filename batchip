@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # =============================================================================
-#      FileName : batcolor
+#      FileName : batchip
 #        Author : marslo
 #       Created : 2026-05-15 19:34:29
-#    LastChange : 2026-05-17 14:30:03
+#    LastChange : 2026-05-18 16:26:57
 #   Description : A wrapper around `bat` that colorizes hex color codes in the output. support:
 #                 - Hex: #fff, #ffffff, 'ffffff'
 #                 - RGB/RGBA: rgb(74, 242, 161), rgba(74, 242, 161, 0.3)
@@ -231,7 +231,7 @@ function _color_filter() {
 }
 
 # main
-function batcolor() {
+function batchip() {
   local dopage=true
   local _envcmd=()
 
@@ -266,6 +266,6 @@ type -P bat >/dev/null || {
   exit 1
 }
 
-batcolor "$@"
+batchip "$@"
 
 # vim:tabstop=2:softtabstop=2:shiftwidth=2:expandtab:filetype=sh:

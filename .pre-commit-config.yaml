@@ -51,4 +51,4 @@ repos:
         entry: shellcheck
         types: [shell]
         args: ["--severity=warning"]
-        files: '(\.sh|^batcolor)$'
+        files: '(\.sh|^batchip)$'
