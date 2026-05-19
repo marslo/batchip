@@ -1,4 +1,3 @@
-
 highlight RedItalic          ctermfg=167   guifg=#ea6962
 highlight OrangeItalic       ctermfg=208   guifg=#e78a4e
 highlight OrangeStandard     ctermfg=208   guifg=#e78a4e

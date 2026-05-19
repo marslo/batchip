@@ -3,7 +3,7 @@
 #      FileName : batchip
 #        Author : marslo
 #       Created : 2026-05-15 19:34:29
-#    LastChange : 2026-05-18 18:01:28
+#    LastChange : 2026-05-18 19:15:47
 #   Description : A wrapper around `bat` that colorizes hex color codes in the output. support:
 #                 - Hex: #fff, #ffffff, 'ffffff'
 #                 - RGB/RGBA: rgb(74, 242, 161), rgba(74, 242, 161, 0.3)
@@ -36,6 +36,7 @@ function _checkbat() {
   }
 }
 
+function _decolorize() { sed $'s/\x1b\\[\\([0-9;]*\\)[mGKHfJ]//g'; }
 
 function _color_filter() {
   COLOR_JSON_PATH="${COLOR_NAMES_JSON}" perl -pe '
@@ -241,7 +242,10 @@ function _color_filter() {
 # main
 function batchip() {
   local _dopage=true
-  local _envcmd=()
+  local _decolor=false
+  # strip BAT_OPTS and set BAT_STYLE=plain to avoid interference with our colorization logic
+  local -a _envcmd=( env -u BAT_OPTS BAT_STYLE=plain )
+  local -a _batcmd=( command bat --color=always --paging=never )
 
   # intercept certain arguments that should bypass the colorization logic
   for arg in "$@"; do
@@ -249,41 +253,36 @@ function batchip() {
       --list-*|-h|--help|-V|--version|--diagnostics|--cache-dir|cache ) _checkbat; exec command bat "$@" ;;
       --paging=never|-P                                               ) _dopage=false ;;
       --paging=always                                                 ) _dopage=true  ;;
+      --language|--language=*|-l|--file-name|--file-name=*.*          ) _decolor=true ;;
     esac
   done
 
   # download color names json if necessary
   _checkjson
 
-  # filter mode: no args && stdin is not a TTY then not invoking `bat`
-  # i.e.: `cat style.css | batchip`
-  if [[ ! -t 0 && $# -eq 0 ]]; then
-    if [[ "${_dopage}" == true && -t 1 ]]; then
-      local pager="${BAT_PAGER:-${PAGER:-less -R -F -X}}"
-      _color_filter | ${pager}
-    else
+  # filter mode / pipe mode: no args && stdin is not a TTY then not invoking `bat`
+  if [[ ! -t 0 ]]; then
+    local _pager="${BAT_PAGER:-${PAGER:-less -R -F -X}}"
+    # `command cat style.css | batchip`
+    if [[ $# -eq 0 ]]; then
       _color_filter
-    fi
+    # `command bat --color always style.css | batchip --language css`
+    elif "${_decolor}"; then
+      _checkbat
+      _decolorize | "${_envcmd[@]}" "${_batcmd[@]}" "$@" | _color_filter
+    else
+      _checkbat
+      "${_envcmd[@]}" "${_batcmd[@]}" "$@" | _color_filter
+    fi |
+    if [[ "${_dopage}" == true && -t 1 ]]; then ${_pager}; else command cat; fi
     return
   fi
 
-  # wrapper mode: if there are args or stdin is a TTY, invoke `bat` to leverage its syntax highlighting and paging capabilities, then pipe through our color filter for additional colorization of color codes.
+  # wrapper mode: `batchip style.css [OPTIONS ...]`
   _checkbat
-
-  # strip BAT_OPTS and set BAT_STYLE=plain to avoid interference with our colorization logic
-  # i.e.: `command bat --color=always style.css | batchip [OPTIONS ...]`
-  [[ -t 0 ]] || {
-    _dopage=false
-    _envcmd=(env -u BAT_OPTS BAT_STYLE=plain)
-  }
-
-  # i.e.: `batchip style.css [OPTIONS ...]`
-  if [[ "${_dopage}" == true ]]; then
-    local pager="${BAT_PAGER:-${PAGER:-less -R -F -X}}"
-    "${_envcmd[@]}" command bat --color=always --paging=never "$@" | _color_filter | ${pager}
-  else
-    "${_envcmd[@]}" command bat --color=always --paging=never "$@" | _color_filter
-  fi
+  local _pager="${BAT_PAGER:-${PAGER:-less -R -F -X}}"
+  "${_envcmd[@]}" "${_batcmd[@]}" "$@" | _color_filter |
+  if [[ "${_dopage}" == true && -t 1 ]]; then ${_pager}; else command cat; fi
 }
 
 batchip "$@"
