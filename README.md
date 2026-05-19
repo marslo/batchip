@@ -137,7 +137,7 @@ bat --color=always style.css | batchip
 
 |                    run with `bat`                   |                      run with `cat`                      |
 |:---------------------------------------------------:|:--------------------------------------------------------:|
-| ![run with bat pipe](./screenshots/batchip-pip.png) | ![run with cat pipe](./screenshots/batchip-cat-pipe.png) |
+| ![run with bat pipe](./screenshots/batchip-pipe.png) | ![run with cat pipe](./screenshots/batchip-cat-pipe.png) |
 
 ## alias to bat
 ```bash
