@@ -1,3 +1,30 @@
+## [1.0.2](https://github.com/marslo/batchip/compare/v1.0.1...v1.0.2) (2026-05-19)
+
+### Code Refactoring
+
+* refactor(rename): rename to batchip ( from batcolor )
+  Signed-off-by: marslo <marslo.jiao@gmail.com>
+
+### Documentation
+
+* docs: update readme
+  Signed-off-by: marslo <marslo.jiao@gmail.com>
+
+### Bug Fixes
+
+* fix(core): fixed the double ANSI escape rendering in pipe mode
+
+Fixed #3
+Signed-off-by: marslo <marslo.jiao@gmail.com>
+* fix(core): optimize pipe mode to bypass bat and its env vars
+  - color filter directly WITHOUT `bat` when stdin is piped and no args given - `cat file | batchip`
+  - skip BAT_OPTS/BAT_STYLE env manipulation in pipe mode, since the options might be provided by bat previously - `bat -p --color always file | batchip`
+  - add github actions pre-commit workflow
+
+Fixed #1
+
+Signed-off-by: marslo <marslo.jiao@gmail.com>
+
 ## [1.0.1](https://github.com/marslo/batcolor/compare/v1.0.0...v1.0.1) (2026-05-17)
 
 ### Documentation
