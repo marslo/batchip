@@ -40,9 +40,12 @@ Hex codes, RGB/HSL values, and named CSS colors are highlighted in their actual 
 > [!TIP]
 > - check [`fzf-preview.sh`](https://github.com/marslo/dotfiles/raw/main/.marslo/bin/fzf-preview.sh) for full support
 
-|                                                                          VIDEO ( integrate in fzf-preview )                                                                         |               SCREENSHOT              |
-|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------:|
-| <video src="https://github.com/user-attachments/assets/268202bc-e600-464f-8f4c-0e674f9e444d" width="90%" autoplay loop muted playsinline>batchip integrate with fzf-preview</video> | ![batchip](./screenshots/batchip.png) |
+<video src="https://github.com/user-attachments/assets/268202bc-e600-464f-8f4c-0e674f9e444d" width="90%" autoplay loop muted playsinline>batchip integrate with fzf-preview</video>
+
+
+|         INTEGRATE IN FZF-PREVIEW         |             RUN AS COMMAND            |
+|:----------------------------------------:|:-------------------------------------:|
+| ![batchip in yml](./screenshots/yml.png) | ![batchip](./screenshots/batchip.png) |
 
 ---
 

@@ -3,7 +3,7 @@
 #      FileName : batchip
 #        Author : marslo
 #       Created : 2026-05-15 19:34:29
-#    LastChange : 2026-05-18 16:26:57
+#    LastChange : 2026-05-18 18:01:28
 #   Description : A wrapper around `bat` that colorizes hex color codes in the output. support:
 #                 - Hex: #fff, #ffffff, 'ffffff'
 #                 - RGB/RGBA: rgb(74, 242, 161), rgba(74, 242, 161, 0.3)
@@ -17,7 +17,7 @@ set -euo pipefail
 declare COLOR_NAMES_JSON="${COLOR_NAMES_JSON:-$HOME/.config/css-color-names.json}"
 declare -r JSON_URL='https://github.com/bahamas10/css-color-names/raw/master/css-color-names.json'
 
-function check() {
+function _checkjson() {
   [[ -f "${COLOR_NAMES_JSON}" ]] && return 0
 
   test -f "${COLOR_NAMES_JSON}" || {
@@ -28,6 +28,14 @@ function check() {
     exit 1
   }
 }
+
+function _checkbat() {
+  type -P bat >/dev/null || {
+    echo "Error: 'bat' command not found. Please install 'bat' first." >&2
+    exit 1
+  }
+}
+
 
 function _color_filter() {
   COLOR_JSON_PATH="${COLOR_NAMES_JSON}" perl -pe '
@@ -232,38 +240,50 @@ function _color_filter() {
 
 # main
 function batchip() {
-  local dopage=true
+  local _dopage=true
   local _envcmd=()
-
-  # strip BAT_OPTS and set BAT_STYLE=plain to avoid interference with our colorization logic
-  if [[ ! -t 0 ]]; then
-    dopage=false
-    _envcmd=(env -u BAT_OPTS BAT_STYLE=plain)
-  fi
 
   # intercept certain arguments that should bypass the colorization logic
   for arg in "$@"; do
     case "${arg}" in
-      --list-*|-h|--help|-V|--version|--diagnostics|--cache-dir ) exec command bat "$@" ;;
-      --paging=never|-P                                         ) dopage=false          ;;
-      --paging=always                                           ) dopage=true           ;;
+      --list-*|-h|--help|-V|--version|--diagnostics|--cache-dir|cache ) _checkbat; exec command bat "$@" ;;
+      --paging=never|-P                                               ) _dopage=false ;;
+      --paging=always                                                 ) _dopage=true  ;;
     esac
   done
 
-  # main
-  check
+  # download color names json if necessary
+  _checkjson
 
-  if [[ "${dopage}" == true ]]; then
+  # filter mode: no args && stdin is not a TTY then not invoking `bat`
+  # i.e.: `cat style.css | batchip`
+  if [[ ! -t 0 && $# -eq 0 ]]; then
+    if [[ "${_dopage}" == true && -t 1 ]]; then
+      local pager="${BAT_PAGER:-${PAGER:-less -R -F -X}}"
+      _color_filter | ${pager}
+    else
+      _color_filter
+    fi
+    return
+  fi
+
+  # wrapper mode: if there are args or stdin is a TTY, invoke `bat` to leverage its syntax highlighting and paging capabilities, then pipe through our color filter for additional colorization of color codes.
+  _checkbat
+
+  # strip BAT_OPTS and set BAT_STYLE=plain to avoid interference with our colorization logic
+  # i.e.: `command bat --color=always style.css | batchip [OPTIONS ...]`
+  [[ -t 0 ]] || {
+    _dopage=false
+    _envcmd=(env -u BAT_OPTS BAT_STYLE=plain)
+  }
+
+  # i.e.: `batchip style.css [OPTIONS ...]`
+  if [[ "${_dopage}" == true ]]; then
     local pager="${BAT_PAGER:-${PAGER:-less -R -F -X}}"
     "${_envcmd[@]}" command bat --color=always --paging=never "$@" | _color_filter | ${pager}
   else
     "${_envcmd[@]}" command bat --color=always --paging=never "$@" | _color_filter
   fi
-}
-
-type -P bat >/dev/null || {
-  echo "Error: 'bat' command not found. Please install 'bat' first." >&2
-  exit 1
 }
 
 batchip "$@"
